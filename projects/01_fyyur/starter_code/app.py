@@ -14,6 +14,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
+import sys
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -32,23 +33,23 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    __tablename__ = 'venues'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     city = db.Column(db.String(120), nullable=False)
     state = db.Column(db.String(120), nullable=False)
     address = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120), nullable=False, default="https://www.facebook.com")
+    facebook_link = db.Column(db.String(120))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
     #     -- Done; added a migrate object above to enable use of Flask-Migrate
 
     genres = db.Column(db.String(120), nullable=False, default='Other')
-    website_link = db.Column(db.String(120), nullable=False, default='https://www.google.com')
-    seeking_talent = db.Column(db.Boolean)
+    website_link = db.Column(db.String(120))
+    seeking_talent = db.Column(db.String(120))
     seeking_description = db.Column(db.String(500))
     show = db.relationship('Show', backref='venue', lazy=True)
 
@@ -57,7 +58,7 @@ class Venue(db.Model):
 
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+    __tablename__ = 'artists'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -66,11 +67,11 @@ class Artist(db.Model):
     phone = db.Column(db.String(120), nullable=False)
     genres = db.Column(db.String(120), nullable=False, default='Other')
     image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120), nullable=False, default="https://www.facebook.com")
+    facebook_link = db.Column(db.String(120))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
     website_link = db.Column(db.String(120), nullable=False, default='https://www.google.com')
-    seeking_venue = db.Column(db.Boolean)
+    seeking_venue = db.Column(db.String(120))
     seeking_description = db.Column(db.String(500))
     show = db.relationship('Show', backref='artist', lazy=True)
 
@@ -81,11 +82,11 @@ class Artist(db.Model):
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
 class Show(db.Model):
-   __tablename__ = 'Show'
+   __tablename__ = 'shows'
 
    id = db.Column(db.Integer, primary_key=True)
-   artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
-   venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+   artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
+   venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
    start_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
    def __repr__(self):
@@ -254,14 +255,69 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
+  error = False
+  venueName = ''
+  data = {}
+  try:
+    name = request.form['name']
+    city = request.form['city']
+    state = request.form['state']
+    address = request.form['address']
+    phone = request.form['phone']
+    genres = request.form['genres']
+    image_link = request.form['image_link']
+    facebook_link = request.form['facebook_link']
+    website_link = request.form['website_link']
+    seeking_talent = request.form['seeking_talent']
+    seeking_description = request.form['seeking_description']
 
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
+    venue = Venue(name=name, city=city, state=state, address=address, phone=phone, genres=genres, image_link=image_link, facebook_link=facebook_link, website_link=website_link, seeking_talent=seeking_talent, seeking_description=seeking_description)
+     
+    db.session.add(venue)
+    db.session.commit()
+
+    venueName = name
+    print(venue)
+
+    data['id'] = venue.id
+    data['name'] = venue.name
+    data['city'] = venue.city
+    data['state'] = venue.state
+    data['address'] = venue.address
+    data['phone'] = venue.phone
+    data['genres'] = venue.genres
+    data['image_link'] = venue.image_link
+    data['facebook_link'] = venue.facebook_link
+    data['website_link'] = venue.website_link
+    data['seeking_talent'] = venue.seeking_talent
+    data['seeking_description'] = venue.seeking_description
+
+  except:
+    error=True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  if error:
+    print(sys.exc_info())
+    # TODO: on unsuccessful db insert, flash an error instead.
+    # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
+    flash('An error occurred. Venue ' + venueName + ' could not be listed.')
+    # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  else:
+    error=False
+    # on successful db insert, flash success
+    flash('Venue ' + request.form['name'] + ' was successfully listed!')
+    
+  # TODO: modify data to be the data object returned from db insertion
+  return render_template('pages/home.html', venues=data)
+
+
+  
+
+  
+  
+  
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
@@ -544,12 +600,10 @@ if not app.debug:
 #----------------------------------------------------------------------------#
 
 # Default port:
-if __name__ == '__main__':
+""" if __name__ == '__main__':
     app.run()
-
+ """
 # Or specify port manually:
-'''
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-'''
+    #port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=5001)
