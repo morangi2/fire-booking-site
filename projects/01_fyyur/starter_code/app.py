@@ -15,6 +15,7 @@ from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
 import sys
+from sqlalchemy.orm import load_only
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -54,7 +55,7 @@ class Venue(db.Model):
     show = db.relationship('Show', backref='venue', lazy=True)
 
     def __repr__(self):
-       return f'<NEW VENUEE: {self.id} {self.name} {self.city} {self.state} {self.address} {self.phone} {self.image_link} {self.facebook_link} {self.genres} {self.website_link} {self.seeking_talent} {self.seeking_description}>'
+      return f'<NEW VENUEE: {self.id} {self.name} {self.city} {self.state} {self.address} {self.phone} {self.image_link} {self.facebook_link} {self.genres} {self.website_link} {self.seeking_talent} {self.seeking_description}>'
 
 
 class Artist(db.Model):
@@ -122,7 +123,7 @@ def index():
 def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
+  """ data=[{
     "city": "San Francisco",
     "state": "CA",
     "venues": [{
@@ -142,8 +143,20 @@ def venues():
       "name": "The Dueling Pianos Bar",
       "num_upcoming_shows": 0,
     }]
-  }]
-  return render_template('pages/venues.html', areas=data);
+  }] """
+
+  cities_list = Venue.query.distinct('city')
+  areas = []
+
+  for one_city in cities_list:
+    city_data = {}
+    city_data['city'] = one_city.city
+    city_data['state'] = one_city.state
+    city_data['venues'] = Venue.query.filter_by(city = one_city.city)
+    city_data['num_upcoming_shows'] = Show.query.filter_by(venue_id = one_city.id).count()
+    areas.append(city_data)
+
+  return render_template('pages/venues.html', areas=areas)
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
