@@ -391,7 +391,7 @@ def search_artists():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
-  response={
+  """ response={
     "count": 1,
     "data": [{
       "id": 4,
@@ -399,7 +399,30 @@ def search_artists():
       "num_upcoming_shows": 0,
     }]
   }
-  return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
+  return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', '')) """
+
+  search_term = request.form['search_term']
+  search_term_case_insensitive = '%' + search_term + '%'
+
+  search_response = {}
+  search_response['count'] = 0
+  search_response['data'] = []
+
+  artists_from_search = Artist.query.filter(Artist.name.ilike(search_term_case_insensitive))
+  artists_from_search_count = Artist.query.filter(Artist.name.ilike(search_term_case_insensitive)).count()
+
+  for artist in artists_from_search:
+    this_artist = {}
+    this_artist['id'] = artist.id
+    this_artist['name'] = artist.name
+    this_artist['num_upcoming_shows'] = Show.query.filter_by(artist_id = artist.id).count()
+
+    search_response['count'] = artists_from_search_count
+    search_response['data'].append(this_artist)
+
+  return render_template('pages/search_artists.html', results=search_response, search_term=search_term)
+
+
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
