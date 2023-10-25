@@ -15,7 +15,6 @@ from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
 import sys
-from sqlalchemy.orm import load_only
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -351,7 +350,17 @@ def artists():
     "id": 6,
     "name": "The Wild Sax Band",
   }]
-  return render_template('pages/artists.html', artists=data)
+
+  artist_data = []
+  artists_all = Artist.query.all()
+
+  for artist in artists_all:
+    artist_formatted = {}
+    artist_formatted['id'] = artist.id
+    artist_formatted['name'] = artist.name
+    artist_data.append(artist_formatted)
+
+  return render_template('pages/artists.html', artists=artist_data)
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
