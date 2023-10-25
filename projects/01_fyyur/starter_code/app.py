@@ -288,6 +288,7 @@ def show_venue(venue_id):
     print(sys.exc_info())
 
   if error:
+    error = False
     flash('This venue does NOT exist in our records.')
     abort(404)
   
@@ -383,6 +384,7 @@ def delete_venue(venue_id):
     db.session.close()
 
   if error:
+    error = False
     flash('An error occured. Venue could NOT be deleted.')
     abort(404)
   
@@ -530,6 +532,7 @@ def show_artist(artist_id):
     print(sys.exc_info())
 
   if error:
+    error = False
     flash('This artist does NOT exist in our records.')
     abort(404)
 
@@ -554,14 +557,77 @@ def edit_artist(artist_id):
     "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
   }
   # TODO: populate form with fields from artist with ID <artist_id>
-  return render_template('forms/edit_artist.html', form=form, artist=artist)
+
+  artist_to_edit = Artist.query.get(artist_id)
+
+  artist_data = {}
+  artist_data['id'] = artist_to_edit.id
+  artist_data['name'] = artist_to_edit.name
+  artist_data['genres'] = artist_to_edit.genres
+  artist_data['city'] = artist_to_edit.city
+  artist_data['state'] = artist_to_edit.state
+  artist_data['phone'] = artist_to_edit.phone
+  artist_data['website_link'] = artist_to_edit.website_link
+  artist_data['facebook_link'] = artist_to_edit.facebook_link
+  artist_data['seeking_venue'] = artist_to_edit.seeking_venue
+  artist_data['seeking_description'] = artist_to_edit.seeking_description
+  artist_data['image_link'] = artist_to_edit.image_link
+
+  form.name.data = artist_to_edit.name
+  form.genres.data = artist_to_edit.genres
+  form.city.data = artist_to_edit.city
+  form.state.data = artist_to_edit.state
+  form.phone.data = artist_to_edit.phone
+  form.website_link.data = artist_to_edit.website_link
+  form.facebook_link.data = artist_to_edit.facebook_link
+  form.seeking_venue.data = artist_to_edit.seeking_venue
+  form.seeking_description.data = artist_to_edit.seeking_description
+  form.image_link.data = artist_to_edit.image_link
+
+  return render_template('forms/edit_artist.html', form=form, artist=artist_data)
+
+
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-  # TODO: take values from the form submitted, and update existing
-  # artist record with ID <artist_id> using the new attributes
+  # TODO: take values from the form submitted, and update existing artist record with ID <artist_id> using the new attributes
+
+  error = False
+
+  try:
+    artist_edit = Artist.query.get(artist_id)
+
+    artist_edit.name = request.form['name']
+    artist_edit.genres = request.form['genres']
+    artist_edit.city = request.form['city']
+    artist_edit.state = request.form['state']
+    artist_edit.phone = request.form['phone']
+    artist_edit.website_link = request.form['website_link']
+    artist_edit.facebook_link = request.form['facebook_link']
+    artist_edit.seeking_venue = request.form['seeking_venue']
+    artist_edit.seeking_description = request.form['seeking_description']
+    artist_edit.image_link = request.form['image_link']
+
+    db.session.commit()
+
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+
+  finally:
+    db.session.close()
+
+  if error:
+    error = False
+    flash('Error occured: edit was not successfull.')
+    abort(404)
+  
+  else:
+    flash('Artist ' + request.form['name'] + ' updated successully.')
 
   return redirect(url_for('show_artist', artist_id=artist_id))
+
 
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
