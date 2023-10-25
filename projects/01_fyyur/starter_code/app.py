@@ -3,9 +3,10 @@
 #----------------------------------------------------------------------------#
 
 import json
+import datetime
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, abort, render_template, request, Response, flash, redirect, url_for
 #from markupsafe import Markup
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -14,7 +15,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
-import sys
+import sys, time
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -87,7 +88,7 @@ class Show(db.Model):
    id = db.Column(db.Integer, primary_key=True)
    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
-   start_time = db.Column(db.DateTime, nullable=False, default=datetime.now)
+   start_time = db.Column(db.String(120), nullable=False, default=datetime.now)
 
    def __repr__(self):
       return f'<NEW SHOWW: {self.id} {self.start_time}, list {self.artist_id} {self.venue_id}>'
@@ -452,8 +453,56 @@ def show_artist(artist_id):
     "past_shows_count": 0,
     "upcoming_shows_count": 3,
   }
-  data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
-  return render_template('pages/show_artist.html', artist=data)
+  #data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
+
+  error = False
+  try:
+    artist_selected = Artist.query.get(artist_id)
+    shows_joinedwith_venue = Show.query.filter_by(artist_id = artist_id).join(Venue).all()
+    print(shows_joinedwith_venue)
+    artist_selected_data = {}
+
+    artist_selected_data['id'] = artist_selected.id
+    artist_selected_data['name'] = artist_selected.name
+    artist_selected_data['genres'] = artist_selected.genres
+    artist_selected_data['city'] = artist_selected.city
+    artist_selected_data['state'] = artist_selected.state
+    artist_selected_data['phone'] = artist_selected.phone
+    artist_selected_data['seeking_venue'] = artist_selected.seeking_venue
+    artist_selected_data['image_link'] = artist_selected.image_link
+    artist_selected_data['past_shows'] = []
+    artist_selected_data['upcoming_shows'] = []
+    artist_selected_data['past_shows_count'] = 0
+    artist_selected_data['upcoming_shows_count'] = 0
+
+    for show in shows_joinedwith_venue:
+      this_show = {}
+      this_show['venue_id'] = show.venue_id
+      this_show['venue_name'] = show.venue.name
+      this_show['venue_image_link'] = show.venue.image_link
+      this_show['start_time'] = show.start_time
+
+      showstart_time = show.start_time
+      showstart_time_formatted = datetime.strptime(showstart_time, '%Y-%m-%d %H:%M:%S')
+      db_timestamp = datetime.timestamp(showstart_time_formatted)
+      current_timestamp = time.time()
+
+      if (current_timestamp > db_timestamp):
+        artist_selected_data['past_shows'].append(this_show)
+        artist_selected_data['past_shows_count'] += 1
+      else:
+        artist_selected_data['upcoming_shows'].append(this_show)
+        artist_selected_data['upcoming_shows_count'] += 1
+
+  except:
+    error = True
+    print(sys.exc_info())
+
+  if error:
+    flash('This artist does NOT exist in our records.')
+    abort(404)
+
+  return render_template('pages/show_artist.html', artist=artist_selected_data)
 
 #  Update
 #  ----------------------------------------------------------------
