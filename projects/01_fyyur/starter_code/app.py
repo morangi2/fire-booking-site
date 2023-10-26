@@ -170,8 +170,8 @@ def search_venues():
   #venues_from_search = Venue.query.filter(Venue.name.contains(search_term)) ## ==> .contains() is not case-insensitive
   #venues_from_search = Venue.query.filter(Venue.name.ilike(search_term_case_insensitive)) ## ==> searches only for the venue name
   # below: search by case-insensitive name, or specific city, or specific state
-  venues_from_search = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), Venue.state.contains(search_term_state), Venue.city.contains(search_term_city)))
-  venues_from_search_count = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), Venue.state.contains(search_term_state), Venue.city.contains(search_term_city))).count()
+  venues_from_search = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), and_(Venue.state.contains(search_term_state), Venue.city.contains(search_term_city))))
+  venues_from_search_count = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), and_(Venue.state.contains(search_term_state), Venue.city.contains(search_term_city)))).count()
 
   for venue in venues_from_search:
     this_venue = {}
@@ -369,12 +369,27 @@ def search_artists():
   search_term = request.form['search_term']
   search_term_case_insensitive = '%' + search_term + '%'
 
+  #search by CITY and STATE if someone enters both, comma seperated. EG: searching for "Seattle, WA" will give you artists specifically under Seattle, WA
+  search_term_city = ''
+  search_term_state = ''
+  search_term_split = search_term.split(', ')
+  length_of_split = len(search_term_split)
+
+  if length_of_split == 2:
+    #seperate by the comma
+    search_term_city = search_term_split[0]
+    search_term_state = search_term_split[1]
+  else:
+    search_term_city = search_term
+    search_term_state = search_term
+
   search_response = {}
   search_response['count'] = 0
   search_response['data'] = []
 
-  artists_from_search = Artist.query.filter(Artist.name.ilike(search_term_case_insensitive))
-  artists_from_search_count = Artist.query.filter(Artist.name.ilike(search_term_case_insensitive)).count()
+  # artists_from_search = Artist.query.filter(Artist.name.ilike(search_term_case_insensitive)) ## ==> searches only for the artist name
+  artists_from_search = Artist.query.filter(or_(Artist.name.ilike(search_term_case_insensitive), and_(Artist.state.contains(search_term_state), Artist.city.contains(search_term_city))))
+  artists_from_search_count = Artist.query.filter(or_(Artist.name.ilike(search_term_case_insensitive), and_(Artist.state.contains(search_term_state), Artist.city.contains(search_term_city)))).count()
 
   for artist in artists_from_search:
     this_artist = {}
