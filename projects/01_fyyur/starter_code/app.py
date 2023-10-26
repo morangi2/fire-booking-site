@@ -185,9 +185,10 @@ def show_venue(venue_id):
     venue_selected_data['city'] = venue_selected.city
     venue_selected_data['state'] = venue_selected.state
     venue_selected_data['phone'] = venue_selected.phone
-    venue_selected_data['website_link'] = venue_selected.website_link
+    venue_selected_data['website'] = venue_selected.website_link
     venue_selected_data['facebook_link'] = venue_selected.facebook_link
     venue_selected_data['seeking_talent'] = venue_selected.seeking_talent
+    venue_selected_data['seeking_description'] = venue_selected.seeking_description
     venue_selected_data['image_link'] = venue_selected.image_link
     venue_selected_data['past_shows'] = []
     venue_selected_data['upcoming_shows'] = []
@@ -317,7 +318,7 @@ def delete_venue(venue_id):
 
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
-  
+ 
 
 
 #  Artists
@@ -385,6 +386,9 @@ def show_artist(artist_id):
     artist_selected_data['phone'] = artist_selected.phone
     artist_selected_data['seeking_venue'] = artist_selected.seeking_venue
     artist_selected_data['image_link'] = artist_selected.image_link
+    artist_selected_data['facebook_link'] = artist_selected.facebook_link
+    artist_selected_data['website'] = artist_selected.website_link
+    artist_selected_data['seeking_description'] = artist_selected.seeking_description
     artist_selected_data['past_shows'] = []
     artist_selected_data['upcoming_shows'] = []
     artist_selected_data['past_shows_count'] = 0
