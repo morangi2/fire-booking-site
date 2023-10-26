@@ -16,10 +16,6 @@ from models import *
 #----------------------------------------------------------------------------#
 # App Config.
 # TODO: Refactored to file models.py == DONE
-
-
-
-
 #----------------------------------------------------------------------------#
 # TODO: connect to a local postgresql database == DONE
 #     -- Done; on config.py. Database name is 'fire'
@@ -27,7 +23,6 @@ from models import *
 # Models.
 # TODO: Refactored to file models.py == DONE
 #----------------------------------------------------------------------------#
-
 
 #----------------------------------------------------------------------------#
 # Filters.
@@ -250,7 +245,6 @@ def create_venue_submission():
   return render_template('pages/home.html', venues=data)
 
 
-
 @app.route('/venues/<venue_id>/delete', methods=['GET'])
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using == DONE
@@ -277,7 +271,6 @@ def delete_venue(venue_id):
   return redirect(url_for('index'))
 
 
-
 #  Artists
 #  ----------------------------------------------------------------
 @app.route('/artists')
@@ -302,7 +295,6 @@ def search_artists():
   # search for "band" should return "The Wild Sax Band". == DONE
   # TODO: BONUS Challenge: == DONE
   #       Implement Search Artists by City and State, and Search Venues by City and State. Searching by "San Francisco, CA" should return all artists or venues in San Francisco, CA.
-
 
   search_term = request.form['search_term']
   search_term_case_insensitive = '%' + search_term + '%'
@@ -339,7 +331,6 @@ def search_artists():
     search_response['data'].append(this_artist)
 
   return render_template('pages/search_artists.html', results=search_response, search_term=search_term)
-
 
 
 @app.route('/artists/<int:artist_id>')
@@ -432,7 +423,6 @@ def edit_artist(artist_id):
   form.image_link.data = artist_to_edit.image_link
 
   return render_template('forms/edit_artist.html', form=form, artist=artist_data)
-
 
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
