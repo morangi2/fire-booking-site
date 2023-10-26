@@ -648,27 +648,38 @@ def create_show_submission():
   # TODO: insert form data as a new Show record in the db, instead == DONE
 
   error = False
+  error_date_format = False
 
   try:
     artist_id = request.form['artist_id']
     venue_id = request.form['venue_id']
     start_time = request.form['start_time']
+    date_format = '%Y-%m-%d %H:%M:%S'
 
+    #try validating the date, raise ValueError otherwise
+    dateObject = datetime.strptime(start_time, date_format)
     show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
 
     db.session.add(show)
     db.session.commit()
+  except ValueError:
+    error_date_format = True
+    db.session.rollback()
   except:
     error = True
     db.session.rollback()
   finally:
     db.session.close()
-  if error:
+  if error or error_date_format:
     # TODO: on unsuccessful db insert, flash an error instead. == DONE
     # e.g., flash('An error occurred. Show could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-    error = False
-    flash('An error occured. SHOW could not be listed.')
+    if error:
+      error = False
+      flash('An error occured, show not be listed: Incorrect artist ID or venue ID')
+    else:
+      error_date_format = False
+      flash('An error occured, show not listed: Incorrect date format, should be YYYY-MM-DD HR:MIN:SEC eg: 2023-10-26 13:58:22')
   else:
     # on successful db insert, flash success
     flash('Show was successfully listed!')
