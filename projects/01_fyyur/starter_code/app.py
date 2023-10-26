@@ -13,6 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
+from sqlalchemy import and_, or_ 
 from forms import *
 from flask_migrate import Migrate
 import sys, time
@@ -142,17 +143,35 @@ def search_venues():
   # TODO: implement search on venues with partial string search. Ensure it is case-insensitive. == DONE
   # seach for Hop should return "The Musical Hop". == DONE
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee" == DONE
+  # TODO: BONUS Challenge: == DONE
+  #       Implement Search Artists by City and State, and Search Venues by City and State. Searching by "San Francisco, CA" should return all artists or venues in San Francisco, CA.
 
   search_term = request.form['search_term']
   search_term_case_insensitive = '%' + search_term + '%'
-  
+
+  #search by city AND state if someone enters both, comma separated eg searching for "Toronto, ON" will give you venues specifically under Toronto, ON
+  search_term_city = ''
+  search_term_state = ''
+  search_term_split = search_term.split(', ')
+  length_of_split = len(search_term_split)
+
+  if length_of_split == 2:
+    #seperate by the comma
+    search_term_city = search_term_split[0]
+    search_term_state = search_term_split[1]
+  else:
+    search_term_city = search_term
+    search_term_state = search_term
+
   search_response = {}
   search_response['count'] = 0
   search_response['data'] = []
 
-  #venues_from_search = Venue.query.filter(Venue.name.contains(search_term)) # .contains() is not case-insensitive
-  venues_from_search = Venue.query.filter(Venue.name.ilike(search_term_case_insensitive))
-  venues_from_search_count = Venue.query.filter(Venue.name.ilike(search_term_case_insensitive)).count()
+  #venues_from_search = Venue.query.filter(Venue.name.contains(search_term)) ## ==> .contains() is not case-insensitive
+  #venues_from_search = Venue.query.filter(Venue.name.ilike(search_term_case_insensitive)) ## ==> searches only for the venue name
+  # below: search by case-insensitive name, or specific city, or specific state
+  venues_from_search = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), Venue.state.contains(search_term_state), Venue.city.contains(search_term_city)))
+  venues_from_search_count = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), Venue.state.contains(search_term_state), Venue.city.contains(search_term_city))).count()
 
   for venue in venues_from_search:
     this_venue = {}
@@ -343,6 +362,9 @@ def search_artists():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive. == DONE
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band". == DONE
   # search for "band" should return "The Wild Sax Band". == DONE
+  # TODO: BONUS Challenge: == DONE
+  #       Implement Search Artists by City and State, and Search Venues by City and State. Searching by "San Francisco, CA" should return all artists or venues in San Francisco, CA.
+
 
   search_term = request.form['search_term']
   search_term_case_insensitive = '%' + search_term + '%'
