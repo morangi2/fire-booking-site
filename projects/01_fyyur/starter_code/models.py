@@ -1,12 +1,10 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-
-import time
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask
 from flask_migrate import Migrate
+from flask import Flask
 
 app = Flask(__name__)
 moment = Moment(app)
@@ -29,7 +27,7 @@ class Venue(db.Model):
     # TODO: implement any missing fields, as a database migration using Flask-Migrate == DONE
     #     -- Done; added a migrate object above to enable use of Flask-Migrate
 
-    genres = db.Column(db.String(120), nullable=False, default='Other')
+    genres = db.Column(db.String(120), nullable=False)
     website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.String(120))
     seeking_description = db.Column(db.String(500))
@@ -46,13 +44,13 @@ class Artist(db.Model):
     name = db.Column(db.String, nullable=False)
     city = db.Column(db.String(120), nullable=False)
     state = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(120), nullable=False)
-    genres = db.Column(db.String(120), nullable=False, default='Other')
+    phone = db.Column(db.String(120))
+    genres = db.Column(db.String(120), nullable=False)
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate == DONE
-    website_link = db.Column(db.String(120), nullable=False, default='https://www.google.com')
+    website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.String(120))
     seeking_description = db.Column(db.String(500))
     show = db.relationship('Show', backref='artist', lazy=True)
@@ -69,7 +67,7 @@ class Show(db.Model):
    id = db.Column(db.Integer, primary_key=True)
    artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
    venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
-   start_time = db.Column(db.String(120), nullable=False, default=time.time())
+   start_time = db.Column(db.String(120), nullable=False)
 
    def __repr__(self):
       return f'<NEW SHOW: {self.id} {self.start_time}, list {self.artist_id} {self.venue_id}>'

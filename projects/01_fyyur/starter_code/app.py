@@ -16,6 +16,10 @@ from models import *
 #----------------------------------------------------------------------------#
 # App Config.
 # TODO: Refactored to file models.py == DONE
+
+
+
+
 #----------------------------------------------------------------------------#
 # TODO: connect to a local postgresql database == DONE
 #     -- Done; on config.py. Database name is 'fire'
@@ -230,6 +234,8 @@ def create_venue_submission():
     db.session.close()
   if error:
     error = False
+    print('data to input:: ')
+    print(data)
     print(sys.exc_info())
     # TODO: on unsuccessful db insert, flash an error instead. == DONE
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
@@ -237,6 +243,7 @@ def create_venue_submission():
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   else:
     # on successful db insert, flash success
+    print(data)
     flash('Venue ' + request.form['name'] + ' was successfully listed!')
 
   # TODO: modify data to be the data object returned from db insertion == DONE
