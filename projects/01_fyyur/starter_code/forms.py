@@ -1,7 +1,14 @@
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError
+import re
+from wtforms.validators import DataRequired, AnyOf, URL, Regexp
+
+def validate_phone(form, phone):
+    us_phone_num = '^([0-9]{3}[-][0-9]{3}[-][0-9]{4}$)'
+    match = re.search(us_phone_num, phone.data)
+    if not match:
+        raise ValidationError('Error, phone number must be in format xxx-xxx-xxxx')
 
 class ShowForm(Form):
     artist_id = StringField(
@@ -192,8 +199,8 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for phone 
-        'phone'
+        # TODO implement validation logic for phone
+        'phone', validators=[Regexp('^([0-9]{3}[-][0-9]{3}[-][0-9]{4}$)', message='Error, phone number must be in format xxx-xxx-xxxx')]
     )
     image_link = StringField(
         'image_link'
@@ -236,4 +243,6 @@ class ArtistForm(Form):
     seeking_description = StringField(
             'seeking_description'
      )
+    
+
 
