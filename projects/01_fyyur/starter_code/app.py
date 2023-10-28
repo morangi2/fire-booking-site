@@ -18,7 +18,6 @@ from models import *
 # TODO: Refactored to file models.py == DONE
 #----------------------------------------------------------------------------#
 # TODO: connect to a local postgresql database == DONE
-#     -- Done; on config.py. Database name is 'fire'
 #----------------------------------------------------------------------------#
 # Models.
 # TODO: Refactored to file models.py == DONE
