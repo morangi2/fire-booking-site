@@ -78,7 +78,7 @@ def search_venues():
   #       Implement Search Artists by City and State, and Search Venues by City and State. Searching by "San Francisco, CA" should return all artists or venues in San Francisco, CA.
 
   search_term = request.form['search_term']
-  search_term_case_insensitive = '%' + search_term + '%'
+  search_term_incomplete = '%' + search_term + '%'
 
   #search by city AND state if someone enters both, comma separated eg searching for "Toronto, ON" will give you venues specifically under Toronto, ON
   search_term_city = ''
@@ -99,10 +99,10 @@ def search_venues():
   search_response['data'] = []
 
   #venues_from_search = Venue.query.filter(Venue.name.contains(search_term)) ## ==> .contains() is not case-insensitive
-  #venues_from_search = Venue.query.filter(Venue.name.ilike(search_term_case_insensitive)) ## ==> searches only for the venue name
-  # below: search by case-insensitive name, or specific city, or specific state
-  venues_from_search = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), and_(Venue.state.contains(search_term_state), Venue.city.contains(search_term_city))))
-  venues_from_search_count = Venue.query.filter(or_(Venue.name.ilike(search_term_case_insensitive), and_(Venue.state.contains(search_term_state), Venue.city.contains(search_term_city)))).count()
+  #venues_from_search = Venue.query.filter(Venue.name.ilike(search_term_incomplete)) ## ==> searches only for the venue name
+  # below: search by incomplete name, or specific city, or specific state
+  venues_from_search = Venue.query.filter(or_(Venue.name.ilike(search_term_incomplete), and_(Venue.state.contains(search_term_state), Venue.city.contains(search_term_city))))
+  venues_from_search_count = Venue.query.filter(or_(Venue.name.ilike(search_term_incomplete), and_(Venue.state.contains(search_term_state), Venue.city.contains(search_term_city)))).count()
 
   for venue in venues_from_search:
     this_venue = {}
