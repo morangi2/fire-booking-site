@@ -191,24 +191,24 @@ def create_venue_submission():
   data = {}
 
   try:
-    name = request.form['name']
-    city = request.form['city']
-    state = request.form['state']
-    address = request.form['address']
-    phone = request.form['phone']
-    genres = request.form['genres']
-    image_link = request.form['image_link']
-    facebook_link = request.form['facebook_link']
-    website_link = request.form['website_link']
-    seeking_talent = request.form['seeking_talent']
-    seeking_description = request.form['seeking_description']
+    #leverage the WTForm wrappers
+    form = VenueForm(request.form)
 
-    venue = Venue(name=name, city=city, state=state, address=address, phone=phone, genres=genres, image_link=image_link, facebook_link=facebook_link, website_link=website_link, seeking_talent=seeking_talent, seeking_description=seeking_description)
-     
+    venue = Venue(name = form.name.data,
+                  city = form.city.data,
+                  state = form.state.data,
+                  address = form.address.data,
+                  phone = form.phone.data,
+                  genres = form.genres.data,
+                  image_link = form.image_link.data,
+                  facebook_link = form.facebook_link.data,
+                  website_link = form.website_link.data,
+                  seeking_talent = form.seeking_talent.data,
+                  seeking_description = form.seeking_description.data)
     db.session.add(venue)
     db.session.commit()
 
-    venueName = name
+    venueName = form.name.data
 
     data['id'] = venue.id
     data['name'] = venue.name
@@ -556,23 +556,24 @@ def create_artist_submission():
   artist_data = {}
 
   try:
-    name = request.form['name']
-    city = request.form['city']
-    state = request.form['state']
-    phone = request.form['phone']
-    genres = request.form['genres']
-    image_link = request.form['image_link']
-    facebook_link = request.form['facebook_link']
-    website_link = request.form['website_link']
-    seeking_venue = request.form['seeking_venue']
-    seeking_description = request.form['seeking_description']
+    #leverage the WTForm wrappers
+    form = ArtistForm(request.form)
 
-    artist = Artist(name=name, city=city, state=state, phone=phone, genres=genres, image_link=image_link, facebook_link=facebook_link, website_link=website_link, seeking_venue=seeking_venue, seeking_description=seeking_description)
-
+    artist = Artist(name = form.name.data,
+                  city = form.city.data,
+                  state = form.state.data,
+                  phone = form.phone.data,
+                  genres = form.genres.data,
+                  image_link = form.image_link.data,
+                  facebook_link = form.facebook_link.data,
+                  website_link = form.website_link.data,
+                  seeking_venue = form.seeking_venue.data,
+                  seeking_description = form.seeking_description.data)
+    
     db.session.add(artist)
     db.session.commit()
 
-    artist_name = name
+    artist_name = form.name.data
 
     artist_data['id'] = artist.id
     artist_data['id'] = artist.id
