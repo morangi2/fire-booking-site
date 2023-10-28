@@ -434,17 +434,18 @@ def edit_artist_submission(artist_id):
 
   try:
     artist_edit = Artist.query.get(artist_id)
+    form = ArtistForm(request.form)
 
-    artist_edit.name = request.form['name']
-    artist_edit.genres = request.form['genres']
-    artist_edit.city = request.form['city']
-    artist_edit.state = request.form['state']
-    artist_edit.phone = request.form['phone']
-    artist_edit.website_link = request.form['website_link']
-    artist_edit.facebook_link = request.form['facebook_link']
-    artist_edit.seeking_venue = request.form['seeking_venue']
-    artist_edit.seeking_description = request.form['seeking_description']
-    artist_edit.image_link = request.form['image_link']
+    artist_edit.name = form.name.data
+    artist_edit.genres = form.genres.data
+    artist_edit.city = form.city.data
+    artist_edit.state = form.state.data
+    artist_edit.phone = form.phone.data
+    artist_edit.website_link = form.website_link.data
+    artist_edit.facebook_link = form.facebook_link.data
+    artist_edit.seeking_venue = form.seeking_venue.data
+    artist_edit.seeking_description = form.seeking_description.data
+    artist_edit.image_link = form.image_link.data
 
     db.session.commit()
 
@@ -508,18 +509,19 @@ def edit_venue_submission(venue_id):
 
   try:
     venue_edit = Venue.query.get(venue_id)
+    form = VenueForm(request.form)
 
-    venue_edit.name = request.form['name']
-    venue_edit.genres = request.form['genres']
-    venue_edit.address = request.form['address']
-    venue_edit.city = request.form['city']
-    venue_edit.state = request.form['state']
-    venue_edit.phone = request.form['phone']
-    venue_edit.website_link = request.form['website_link']
-    venue_edit.facebook_link = request.form['facebook_link']
-    venue_edit.seeking_talent = request.form['seeking_talent']
-    venue_edit.seeking_description = request.form['seeking_description']
-    venue_edit.image_link = request.form['image_link']
+    venue_edit.name = form.name.data
+    venue_edit.genres = form.genres.data
+    venue_edit.address = form.address.data
+    venue_edit.city = form.city.data
+    venue_edit.state = form.state.data
+    venue_edit.phone = form.phone.data
+    venue_edit.website_link = form.website_link.data
+    venue_edit.facebook_link = form.facebook_link.data
+    venue_edit.seeking_talent = form.seeking_talent.data
+    venue_edit.seeking_description = form.seeking_description.data
+    venue_edit.image_link = form.image_link.data
 
     db.session.commit()
   except:
